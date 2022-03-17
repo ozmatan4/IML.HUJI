@@ -107,12 +107,12 @@ class UnivariateGaussian:
         log_likelihood: float
             log-likelihood calculated
         """
-        part1 = -(X.size()/2)*np.log(2*np.pi)
-        part2 = -(X.size()/2)*np.log(sigma*sigma)
+        part1 = -(X.size/2)*np.log(2*np.pi)
+        part2 = -(X.size/2)*np.log(sigma*sigma)
         factor = -1/2*np.power(sigma, 2)
         muSubArr = X - mu
         powerArr = np.power(muSubArr, 2)
-        part3 = powerArr.sum()
+        part3 = factor*np.sum(powerArr)
         return (part1 + part2 + part3)
         
 
@@ -160,7 +160,8 @@ class MultivariateGaussian:
         Sets `self.mu_`, `self.cov_` attributes according to calculated estimation.
         Then sets `self.fitted_` attribute to `True`
         """
-        raise NotImplementedError()
+        self.mu_ = np.mean(X, axis=0)
+        self.cov_ = np.cov(X, rowvar=False)
 
         self.fitted_ = True
         return self
@@ -185,7 +186,14 @@ class MultivariateGaussian:
         """
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `pdf` function")
-        raise NotImplementedError()
+        detSigma = np.linalg.det(self.cov_)
+        factor1 = 1/np.sqrt(np.power(2*np.pi, np.size(X)))*detSigma
+        invSigma = np.linalg.inv(self.cov_)
+        pdf = np.array([factor1*np.exp(-(1/2)*((x-self.mu_) @ invSigma @ (x - self.mu_).T)) for x in X])
+        return pdf
+
+
+
 
     @staticmethod
     def log_likelihood(mu: np.ndarray, cov: np.ndarray, X: np.ndarray) -> float:
@@ -206,4 +214,11 @@ class MultivariateGaussian:
         log_likelihood: float
             log-likelihood calculated over all input data and under given parameters of Gaussian
         """
-        raise NotImplementedError()
+        detSigma = np.linalg.det(cov)
+        part1 = -((np.size(mu)*np.size(X))/2) * np.log(2*np.pi)
+        part2 = -(np.size(X)/2) * np.log(detSigma)
+        invSigma = np.linalg.inv(cov)
+        pdfArr = np.array([((x - mu) @ invSigma @ (x - mu).T) for x in X])
+        part3 = -(1/2) * np.sum(pdfArr)
+
+
