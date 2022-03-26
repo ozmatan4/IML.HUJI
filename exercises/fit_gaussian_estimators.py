@@ -15,14 +15,14 @@ def test_univariate_gaussian():
     samples = np.random.normal(mu, sigma, 1000)
     uniVG = UnivariateGaussian()
     uniVG.fit(samples)
-    print("(", uniVG.mu_, uniVG.var_, ")")
+    print((uniVG.mu_, uniVG.var_))
 
 
     # Question 2 - Empirically showing sample mean is consistent
     
-    Xarr = np.array([x for x in range(10, 1010, 10)])
+    Xarr = np.linspace(10,1000,100)
     secondUVG = UnivariateGaussian()
-    samplesArr = np.array([np.abs(mu - secondUVG.fit(np.random.normal(mu, sigma, x)).mu_) for x in range(10, 1010, 10)])
+    samplesArr = np.array([np.abs(mu - secondUVG.fit(samples[:x]).mu_) for x in range(10, 1010, 10)])
  
     go.Figure(go.Scatter(x=Xarr, y=samplesArr, mode='markers+lines'),
               layout=go.Layout(
@@ -34,7 +34,6 @@ def test_univariate_gaussian():
 
 
     # # Question 3 - Plotting Empirical PDF of fitted mode
-    # go.Figure()
     sortSample = np.sort(samples)
     pdfArr = uniVG.pdf(sortSample)
     indexArr = range(0, 1000, 1)
@@ -57,42 +56,37 @@ def test_multivariate_gaussian():
     multiVG = MultivariateGaussian()
     multiVG = multiVG.fit(samplesArr)
     print(multiVG.mu_)
-    print(multiVG.cov_)
+    print(multiVG.cov_) 
 
 
     # Question 5 - Likelihood evaluation
-    # muArr = []
-    # for f1 in np.linspace(-10, 10, 200):
-    #     for f3 in np.linspace(-10, 10, 200):
-    #         muArr.append([f1, 0, f3, 0])
+    f1 = np.linspace(-10, 10, 200)
+    f3 = np.linspace(-10, 10, 200)
+    lLH_Array = np.zeros((f1.size, f3.size))
+    for i, val1 in enumerate(f1):
+        for j, val3 in enumerate(f3):
+            lLH_Array[i, j] = MultivariateGaussian().log_likelihood(np.array([val1, 0, val3, 0]), cov, samplesArr) 
 
-    # print(muArr)
-
-
-    # fig = go.Figure(data=go.Heatmap(
-    #                z=[[1, None, 30, 50, 1], [20, 1, 60, 80, 30], [30, 60, 1, -10, 20]],
-    #                x=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    #                y=['Morning', 'Afternoon', 'Evening'],
-    #                hoverongaps = False))
-    # fig.show()
+    go.Figure(data=go.Heatmap(
+                   z=lLH_Array,
+                   x=f1,
+                   y=f3),
+                   layout=go.Layout(
+                   title=r"$\text{log likelihood}$",
+                   xaxis_title="$\\text{f1}$",
+                   yaxis_title="$\\text{f3}$",
+                   height=600, width=600)).show()
+    
    
-
-
     # Question 6 - Maximum likelihood
-    # raise NotImplementedError()
-
+    theta = np.unravel_index(np.argmax(lLH_Array, axis=None), lLH_Array.shape)
+    print(np.argmax(lLH_Array, axis=None))
+    print("maxF1: ", f1[theta[0]], "maxF3: ",  f3[theta[1]])
 
 
 
 if __name__ == '__main__':
-    a= np.array([1, 5, 2, 3, 8, -4, -2, 5, 1, 10, -10, 4, 5, 2, 7, 1, 1, 3, 2, -1, -3, 1, -4, 1, 2, 1, -4, -4, 1, 3, 2, 6, -6, 8, 3, -6, 4, 1, -2, 3, 1, 4, 1, 4, -2, 3, -1, 0, 3, 5, 0, -2])
-    print(np.sum(a)/a.size)
-    print(a.var())
-    
-    print(UnivariateGaussian().log_likelihood(a.mean(),a.var(), a))
-
-
     np.random.seed(0)
-    # test_univariate_gaussian()
-    # test_multivariate_gaussian()
+    test_univariate_gaussian()  
+    test_multivariate_gaussian()
 

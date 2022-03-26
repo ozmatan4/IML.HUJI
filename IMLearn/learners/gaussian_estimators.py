@@ -108,8 +108,8 @@ class UnivariateGaussian:
             log-likelihood calculated
         """
         part1 = -(X.size/2)*np.log(2*np.pi)
-        part2 = -(X.size/2)*np.log(sigma*sigma)
-        factor = -1/2*np.power(sigma, 2)
+        part2 = -(X.size/2)*np.log(sigma)
+        factor = -1/(2*sigma)
         muSubArr = X - mu
         powerArr = np.power(muSubArr, 2)
         part3 = factor*np.sum(powerArr)
@@ -186,10 +186,10 @@ class MultivariateGaussian:
         """
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `pdf` function")
-        detSigma = np.linalg.det(self.cov_)
-        factor1 = 1/np.sqrt(np.power(2*np.pi, np.size(X)))*detSigma
-        invSigma = np.linalg.inv(self.cov_)
-        pdf = np.array([factor1*np.exp(-(1/2)*((x-self.mu_) @ invSigma @ (x - self.mu_).T)) for x in X])
+        detCov = np.linalg.det(self.cov_)
+        factor1 = 1/(np.sqrt(np.power(2*np.pi, np.size(X, 1)))*detCov)
+        invCov = np.linalg.inv(self.cov_)
+        pdf = np.array([factor1*np.exp(-(1/2)*((x-self.mu_) @ invCov @ (x - self.mu_).T)) for x in X])
         return pdf
 
 
@@ -214,11 +214,13 @@ class MultivariateGaussian:
         log_likelihood: float
             log-likelihood calculated over all input data and under given parameters of Gaussian
         """
-        detSigma = np.linalg.det(cov)
         part1 = -((np.size(mu)*np.size(X))/2) * np.log(2*np.pi)
-        part2 = -(np.size(X)/2) * np.log(detSigma)
+        (sign, logDet) = np.linalg.slogdet(cov)
+        part2 = -(np.size(X)/2) * logDet
         invSigma = np.linalg.inv(cov)
-        pdfArr = np.array([((x - mu) @ invSigma @ (x - mu).T) for x in X])
-        part3 = -(1/2) * np.sum(pdfArr)
+        expArr = ((X - mu) @ invSigma @ (X - mu).T) 
+        part3 = -(1/2) * np.sum(expArr)
+        return part1 + part2 + part3
+
 
 
