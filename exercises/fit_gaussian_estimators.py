@@ -1,9 +1,11 @@
 # import os
 # print(os.getcwd(), "\n")
+from turtle import distance
 from IMLearn.learners import UnivariateGaussian, MultivariateGaussian
 import numpy as np
 import plotly.graph_objects as go
 import plotly.io as pio
+import matplotlib.pyplot as plt
 pio.templates.default = "simple_white"
 
 
@@ -14,18 +16,34 @@ def test_univariate_gaussian():
     uniVG = UnivariateGaussian()
     uniVG.fit(samples)
 
-    print((uniVG.mu_, uniVG.var_))
-
 
     # Question 2 - Empirically showing sample mean is consistent
-    samplesArr = np.array({x:(np.abs(mu - uniVG.fit(np.random.normal(mu, sigma, x)).mu_)) for x in range(10, 1000, 10)})
+    Xarr = np.array([x for x in range(10, 1010, 10)])
+    uniVarArr = np.array([UnivariateGaussian().fit(np.random.normal(mu, sigma, x)) for x in range(10, 1010, 10)])
+    samplesArr = np.array([np.abs(mu - x.mu_) for x in uniVarArr])
     # go.Figure()
-    print(samplesArr)
+    plt.plot(Xarr, samplesArr)
+    plt.title("Q2 - distance from real mean")
+    plt.xlabel("Samples number")
+    plt.ylabel("distance between mu to mu hat")
+
+    plt.show()
     
 
 
-    # # Question 3 - Plotting Empirical PDF of fitted model
-    # raise NotImplementedError()
+    # # Question 3 - Plotting Empirical PDF of fitted mode
+    # go.Figure()
+    sortSample = np.sort(samples)
+    pdfArr = uniVG.pdf(sortSample)
+    indexArr = range(0, 1000, 1)
+    plt.scatter(sortSample, pdfArr)
+    plt.title("Q3 - pdf of the samples")
+    plt.xlabel("Sample index")
+    plt.ylabel("pdf of the samples")
+
+    plt.show()
+    
+
 
 
 def test_multivariate_gaussian():

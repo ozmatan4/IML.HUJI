@@ -52,7 +52,7 @@ class UnivariateGaussian:
         estimator is either biased or unbiased). Then sets `self.fitted_` attribute to `True`
         """
         self.mu_ = X.mean()
-        self.var_ = X.var()
+        self.var_ = (X.size/(X.size-1))*X.var()
 
         self.fitted_ = True
         return self
@@ -79,10 +79,12 @@ class UnivariateGaussian:
             raise ValueError("Estimator must first be fitted before calling `pdf` function")
 
         factor1 = 1/np.sqrt(2*np.pi*self.var_)
-        factor2 = -1/2*self.var_, 2
-        pdfLam = lambda t : factor1*np.exp(factor2*np.power(t-self.mu_, 2))
-
-        pdfArr = np.ndarray([pdfLam(x) for x in X])
+        factor2 = -1/2*self.var_
+        sampMuSub = X-self.mu_
+        sampPow = np.power(sampMuSub, 2)
+        # pdfLam = lambda t : factor1*np.exp(factor2*np.power(t-self.mu_, 2))
+        pdfArr = factor1*np.exp(factor2*sampPow)    
+        # pdfArr = np.array([pdfLam(x) for x in X])
         return pdfArr
 
 
