@@ -23,7 +23,41 @@ def load_data(filename: str):
     Design matrix and response vector (prices) - either as a single
     DataFrame or a Tuple[DataFrame, Series]
     """
-    raise NotImplementedError()
+    df = pd.read_csv(filename)
+
+    df.drop(columns=["id", "zipcode", "lat", "long"])
+    df.dropna()
+
+    nonNegTitle  = ["price", "sqft_lot", "sqft_above", "yr_built", "sqft_living15", "sqft_lot15"]
+    posTitle = ["bedrooms", "bathrooms", "sqft_living", "waterfront", "floors", "sqft_basement", "yr_renovated"]
+
+    for title in nonNegTitle:
+        df = df[df[title] > 0]
+    for title in posTitle:
+        df = df[df[title] >= 0]
+
+    df = df[df["view"].isin(range(5))]
+    df = df[df["condition"].isin(range(1, 6))]
+    df = df[df["grade"].isin(range(1, 14))]
+
+    df.loc[df.yr_renovated == 0, "yr_renovated"] = df["yr_built"] 
+
+
+    df["date"] = (pd.to_datetime(df["date"]).dt.year - 2000)
+
+    df["yr_built"] = df["yr_built"] - df["yr_built"].min()
+    
+    df["yr_renovated"] = df["yr_renovated"] - df["yr_renovated"].min()
+
+    allTitle = nonNegTitle + posTitle + ["view", "condition", "grade"]
+
+    for title in allTitle:
+        df = df[df[title] < 5*df[title].mean()]
+
+    y = df["price"]
+    x = df.drop(columns=["price"])    
+
+    return x, y
 
 
 def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
@@ -43,13 +77,16 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
     output_path: str (default ".")
         Path to folder in which plots are saved
     """
-    raise NotImplementedError()
 
+    
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    raise NotImplementedError()
+    x, y = load_data("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/house_prices.csv")
+
+    x.to_csv("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/house_prices2.csv")
+
 
     # Question 2 - Feature evaluation with respect to response
     raise NotImplementedError()
