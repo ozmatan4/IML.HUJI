@@ -1,4 +1,7 @@
+from distutils.log import error
+from turtle import width
 from IMLearn.utils import split_train_test
+from matplotlib.pyplot import ylabel
 from IMLearn.learners.regressors import LinearRegression
 
 from typing import NoReturn
@@ -24,9 +27,12 @@ def load_data(filename: str):
     DataFrame or a Tuple[DataFrame, Series]
     """
     df = pd.read_csv(filename)
+    print(df.shape)
 
-    df.drop(columns=["id", "zipcode", "lat", "long"])
+    df.drop(columns=["id", "zipcode", "lat", "long"], axis=1, inplace=True)
+    print(df.shape)
     df.dropna()
+    print(df.shape)
 
     nonNegTitle  = ["price", "sqft_lot", "sqft_above", "yr_built", "sqft_living15", "sqft_lot15"]
     posTitle = ["bedrooms", "bathrooms", "sqft_living", "waterfront", "floors", "sqft_basement", "yr_renovated"]
@@ -51,11 +57,27 @@ def load_data(filename: str):
 
     allTitle = nonNegTitle + posTitle + ["view", "condition", "grade"]
 
-    for title in allTitle:
-        df = df[df[title] < 5*df[title].mean()]
+    # for title in allTitle:
+
+
+    df = df[df["price"] < 1300000]
+    df = df[df["bedrooms"] < 8]
+    df = df[df["bathrooms"] < 5]
+    df = df[df["sqft_living"] < 5500]
+    df = df[df["sqft_lot"] < 10000]
+    df = df[df["floors"] < 5]
+    df = df[df["sqft_above"] < 6000]
+    df = df[df["sqft_basement"] < 1700]
+    df = df[df["sqft_living15"] < 5000]
+    df = df[df["sqft_lot15"] < 60000]
+    
+
+
 
     y = df["price"]
     x = df.drop(columns=["price"])    
+
+
 
     return x, y
 
@@ -78,21 +100,42 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
         Path to folder in which plots are saved
     """
 
-    
+
+    ylabelSD = np.std(y)
+
+    for title in X:
+        curruntCol = X[title].values
+        curTitleSD = np.std(curruntCol)
+        covCurY = np.cov(curruntCol, y, bias=True)[0][1]
+        P_Correlation = covCurY / (ylabelSD*curTitleSD)
+
+        plot = go.Figure(go.Scatter(x=curruntCol, y=y, mode='markers'),
+                layout=go.Layout(
+                    title="the correlations of the prices with " + str(title) + "is: " + str(P_Correlation),
+                    xaxis_title=str(title),
+                    yaxis_title="Prices- y lable"))
+
+        plot.write_image(output_path + "/" + title + ".png")
+
+
+
+
+
+
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
     x, y = load_data("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/house_prices.csv")
 
-    x.to_csv("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/house_prices2.csv")
+    # x.to_csv("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/house_prices2.csv")
 
 
     # Question 2 - Feature evaluation with respect to response
-    raise NotImplementedError()
+    # feature_evaluation(x, y, "/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/ex2_images")
 
     # Question 3 - Split samples into training- and testing sets.
-    raise NotImplementedError()
+    [train_x, train_y, test_x, test_y] = split_train_test(x, y, 0.75)
 
     # Question 4 - Fit model over increasing percentages of the overall training data
     # For every percentage p in 10%, 11%, ..., 100%, repeat the following 10 times:
@@ -101,4 +144,27 @@ if __name__ == '__main__':
     #   3) Test fitted model over test set
     #   4) Store average and variance of loss over test set
     # Then plot average loss as function of training size with error ribbon of size (mean-2*std, mean+2*std)
-    raise NotImplementedError()
+    
+    lossArr = []
+    varArr = []
+
+
+    allSamples = train_x
+    allSamples["price"] = train_y
+
+    for p in range(0.1, 1.1, 0.01):
+        for repeat in range(10):
+            tempAllSamples= allSamples.sample(p)
+            tempTrainY = tempAllSamples["price"]
+            tempTrainX  = tempAllSamples.drop(columns=["price"])
+            lR = LinearRegression()
+            lR.fit(tempTrainX, tempTrainY)
+
+
+
+
+
+
+
+
+

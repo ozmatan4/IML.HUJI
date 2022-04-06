@@ -107,16 +107,16 @@ class LinearRegression(BaseEstimator):
         
 
 
-# TR = LinearRegression()
-# X = np.array([[9]])
-# X.reshape(3,3)
-# y = np.array([[3]])
-# TR.fit(X, y)
-lj = LinearRegression(True)
-x = np.array([[0,0,0], [1,0,9], [0,1,0]]).T
-print(np.shape(x))
-y =  np.array([[0,0.5,2]]).T
+# # TR = LinearRegression()
+# # X = np.array([[9]])
+# # X.reshape(3,3)
+# # y = np.array([[3]])
+# # TR.fit(X, y)
+# lj = LinearRegression(True)
+# x = np.array([[0,0,0], [1,0,9], [0,1,0]]).T
+# print(np.shape(x))
+# y =  np.array([[0,0.5,2]]).T
 
-print("x\n", x, "\n", "y\n", y)
-lj._fit(x,y)
-print("coefs:\n", lj.coefs_)
+# print("x\n", x, "\n", "y\n", y)
+# lj._fit(x,y)
+# print("coefs:\n", lj.coefs_)
