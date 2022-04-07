@@ -27,7 +27,7 @@ def load_data(filename: str):
     DataFrame or a Tuple[DataFrame, Series]
     """
     df = pd.read_csv(filename)
-    df.drop(columns=["id", "zipcode", "lat", "long"], axis=1, inplace=True)
+    df.drop(columns=["id", "lat", "long"], axis=1, inplace=True)
     df.dropna()
 
     nonNegTitle  = ["price", "sqft_lot", "sqft_above", "yr_built", "sqft_living15", "sqft_lot15"]
@@ -67,7 +67,7 @@ def load_data(filename: str):
     df = df[df["sqft_living15"] < 5000]
     df = df[df["sqft_lot15"] < 60000]
 
-    
+    df = pd.get_dummies(df, prefix="zip_is_", columns=["zipcode"])
 
 
     y = df["price"]
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
     allSamples = train_x
     allSamples["price"] = train_y
-    pArr= np.arange(1,101,1)
+    pArr= np.arange(10,101,1)
     for p in pArr:
         tempLos = []
         for repeat in range(10):

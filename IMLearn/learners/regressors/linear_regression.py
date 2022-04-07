@@ -60,7 +60,7 @@ class LinearRegression(BaseEstimator):
             # X = np.insert(X, 0, 1., axis= 1)
             ones_vec = np.ones((X.shape[0], 1))
             X = np.concatenate([ones_vec, X], axis=1)
-        self.coefs_ = np.linalg.pinv(X.T @ X) @ (X.T @ y)
+        self.coefs_ = np.linalg.pinv(X) @ (y)
         self.fitted_ = True
 
 
@@ -83,7 +83,7 @@ class LinearRegression(BaseEstimator):
 
         if self.fitted_:
             if self.include_intercept_:
-                X = np.insert(X, 0, 1., axis= 1)           
+                X = np.insert(X, 0, 1, axis= 1)           
             return X @ self.coefs_ 
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:

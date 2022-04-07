@@ -20,7 +20,7 @@ class PolynomialFitting(BaseEstimator):
         """
         super().__init__()
         self.k = k + 1
-        self.lR_ = LinearRegression()
+        self.lR_ = LinearRegression(True)
 
 
     def _fit(self, X: np.ndarray, y: np.ndarray) -> NoReturn:

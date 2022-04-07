@@ -43,9 +43,6 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
     # X_test = X.drop(X_train.index)
     # y_test = y.drop(y_train.index)
 
-
-
-
     
     train_end = int(len(y)*train_proportion)
 
