@@ -34,32 +34,32 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
 
     """    
 
-    X["price"] = y
+    # X["price"] = y
 
-    X = X.sample(train_proportion,random_state=200) 
+    # X = X.sample(frac=train_proportion) 
 
-    y_train = X["price"]
-    X_train=X.drop(columns=["price"])
-    X_test = X.drop(X_train.index)
-    y_test = y.drop(y_train.index)
-
-    return [X_train, y_train, X_test, y_test]
+    # y_train = X["price"]
+    # X_train=X.drop(columns=["price"])
+    # X_test = X.drop(X_train.index)
+    # y_test = y.drop(y_train.index)
 
 
-    # train_size = train_proportion
-    # train_end = int(len(y)*train_size)
 
-    # X_random = X.sample(frac=1)
-    # y_random = y.reindex_like(X_random)
+
+    
+    train_end = int(len(y)*train_proportion)
+
+    X_random = X.sample(frac=1)
+    y_random = y.reindex_like(X_random)
     
 
-    # X_train = X_random[:train_end]
-    # X_test = X_random[train_end:]
+    X_train = X_random[:train_end]
+    X_test = X_random[train_end:]
 
-    # y_train = y_random[:train_end]
-    # y_test = y_random[train_end:]
+    y_train = y_random[:train_end]
+    y_test = y_random[train_end:]
 
-
+    return [X_train, y_train, X_test, y_test]
 
 def confusion_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     """

@@ -21,7 +21,12 @@ def load_data(filename: str) -> pd.DataFrame:
     -------
     Design matrix and response vector (Temp)
     """
-    raise NotImplementedError()
+    df = pd.read_csv(filename, parse_dates=["Date"]).dropna().drop_duplicates()
+    # period = pd.Period(df["Date"])
+    df["DayOfYear"] = df["Date"].dt.dayofyear()
+
+
+
 
 
 if __name__ == '__main__':

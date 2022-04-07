@@ -6,7 +6,8 @@ import numpy as np
 from numpy.linalg import pinv
 
 from IMLearn import BaseEstimator
-import IMLearn
+import IMLearn.metrics
+
 
 # import IMLearn.metrics.loss_functions
 
@@ -56,7 +57,9 @@ class LinearRegression(BaseEstimator):
         Fits model with or without an intercept depending on value of `self.include_intercept_`
         """
         if self.include_intercept_:
-            X = np.insert(X, 0, 1., axis= 1)
+            # X = np.insert(X, 0, 1., axis= 1)
+            ones_vec = np.ones((X.shape[0], 1))
+            X = np.concatenate([ones_vec, X], axis=1)
         self.coefs_ = np.linalg.pinv(X.T @ X) @ (X.T @ y)
         self.fitted_ = True
 
@@ -102,7 +105,7 @@ class LinearRegression(BaseEstimator):
         """
 
         if self.fitted_:
-            return IMLearn.metrics.loss_functions.mean_square_error(y, self._predict)
+            return IMLearn.metrics.loss_functions.mean_square_error(y, self._predict(X))
         
         
 

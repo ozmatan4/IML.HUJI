@@ -27,12 +27,8 @@ def load_data(filename: str):
     DataFrame or a Tuple[DataFrame, Series]
     """
     df = pd.read_csv(filename)
-    print(df.shape)
-
     df.drop(columns=["id", "zipcode", "lat", "long"], axis=1, inplace=True)
-    print(df.shape)
     df.dropna()
-    print(df.shape)
 
     nonNegTitle  = ["price", "sqft_lot", "sqft_above", "yr_built", "sqft_living15", "sqft_lot15"]
     posTitle = ["bedrooms", "bathrooms", "sqft_living", "waterfront", "floors", "sqft_basement", "yr_renovated"]
@@ -70,8 +66,8 @@ def load_data(filename: str):
     df = df[df["sqft_basement"] < 1700]
     df = df[df["sqft_living15"] < 5000]
     df = df[df["sqft_lot15"] < 60000]
-    
 
+    
 
 
     y = df["price"]
@@ -145,20 +141,46 @@ if __name__ == '__main__':
     #   4) Store average and variance of loss over test set
     # Then plot average loss as function of training size with error ribbon of size (mean-2*std, mean+2*std)
     
-    lossArr = []
-    varArr = []
+    meanLossArr = []
+    varLossArr = []
 
+    lR = LinearRegression()
 
     allSamples = train_x
     allSamples["price"] = train_y
-
-    for p in range(0.1, 1.1, 0.01):
+    pArr= np.arange(1,101,1)
+    for p in pArr:
+        tempLos = []
         for repeat in range(10):
-            tempAllSamples= allSamples.sample(p)
+            tempAllSamples= allSamples.sample(frac=(p/100))
             tempTrainY = tempAllSamples["price"]
             tempTrainX  = tempAllSamples.drop(columns=["price"])
-            lR = LinearRegression()
             lR.fit(tempTrainX, tempTrainY)
+            tempLos.append(lR.loss(np.array(test_x), np.array(test_y)))
+            
+        meanLossArr.append(np.mean(tempLos))
+        varLossArr.append(np.std(tempLos))
+    
+    pArr = np.array(pArr)
+    meanLossArr = np.array(meanLossArr)
+    varLossArr = np.array(varLossArr)
+
+    
+    plot = go.Figure((go.Scatter(x=pArr, y=meanLossArr,
+                                mode="markers+lines", name="loss for samples", line=dict(dash="dash"), marker=dict(color="green", opacity=.7)),
+                          go.Scatter(x=pArr, y=meanLossArr - 2 * varLossArr,
+                                     fill=None, mode="lines", name="p samples", line=dict(color="lightgrey")),
+                          go.Scatter(x=pArr, y=meanLossArr + 2 * varLossArr,
+                                     fill='tonexty', mode="lines", name="loss mean and var", line=dict(color="lightgrey"))),
+                                     layout=go.Layout(
+                            title="loss for samples",
+                            xaxis_title="p samples",
+                            yaxis_title="loss mean and var"))
+    plot.show()
+
+    # plot.write_image("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/ex2_images" + "/" "new.png")
+
+
 
 
 
