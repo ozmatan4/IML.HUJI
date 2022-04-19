@@ -22,27 +22,11 @@ def load_data(filename: str) -> pd.DataFrame:
     Design matrix and response vector (Temp)
     """
     df = pd.read_csv(filename, parse_dates=["Date"]).dropna()
-    # period = pd.Period(df["Date"])
     df["DayOfYear"] = df["Date"].dt.dayofyear
-
     df.drop(columns=["Date", "Day"])
-
     df = df[df["Temp"] > -10]
     df = df[df["Temp"]< 45]
-
-    # month = df["Month"]
-    # country = df["Country"]
-    # df = pd.get_dummies(df, prefix="Country_is", columns=["Country"])
-    # df = pd.get_dummies(df, prefix="City_is", columns=["City"])
-    # df = pd.get_dummies(df, prefix="Month_is", columns=["Month"])
-    # df["Month"] = month
-    # df["Country"] = country
-
-    # y_temperature = df["Temp"]
-    # df= df.drop(columns=["Temp"])
-
     return df
-
 
 
 if __name__ == '__main__':
@@ -50,10 +34,7 @@ if __name__ == '__main__':
     # Question 1 - Load and preprocessing of city temperature dataset
     df = load_data("/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/City_Temperature.csv")
     
-
-
     # Question 2 - Exploring data for specific country
-    # subsetDF = df[df["Country_is_Israel"]==1]
     subsetDF = df[df["Country"]=="Israel"]
 
 
@@ -62,7 +43,6 @@ if __name__ == '__main__':
                      labels={"x":"Day of year", "y":"Temperature"})
     plot.show()
 
-
     subsetDF2 = subsetDF.groupby("Month")
     subsetDF2 = subsetDF2.agg("std")
 
@@ -70,7 +50,6 @@ if __name__ == '__main__':
                  title="Standard deviation - temperature by month",
                  labels={"Temp":"temperature Standard deviation"})
     plot.show()
-
 
     # Question 3 - Exploring differences between countries
     countryMonthGB = df.groupby(["Country", "Month"])
@@ -81,8 +60,6 @@ if __name__ == '__main__':
                   title="average and standard deviation of the temperature",
                   labels={"mean":"mean Temperature"})
     plot.show()
-
-
 
     # Question 4 - Fitting model for different values of `k`
     y = subsetDF["Temp"]
@@ -110,15 +87,25 @@ if __name__ == '__main__':
 
 
     # Question 5 - Evaluating fitted model on different countries
-    
+
+    Countries = ["Jordan", "South Africa", "The Netherlands"]
+    minimalK = np.argmin(LossArr)+1
+    BestpolyFit = PolynomialFitting(minimalK)
+
+    BestpolyFit.fit(x["DayOfYear"], y)
+    lossArr5 = []
 
 
 
+    for cntry in Countries:
+        tempX = df[df["Country"]==cntry]
+        tempY = tempX["Temp"]
+        lossArr5.append(BestpolyFit.loss(tempX["DayOfYear"], tempY))
 
-
-
-
-
+    plot = px.bar(x=Countries, y=lossArr5,
+                title="model’s error over each of the other countries",
+                labels={"x":"Country", "y":"Loss"})
+    plot.show()
 
 
 

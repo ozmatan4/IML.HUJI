@@ -51,11 +51,6 @@ def load_data(filename: str):
     
     df["yr_renovated"] = df["yr_renovated"] - df["yr_renovated"].min()
 
-    allTitle = nonNegTitle + posTitle + ["view", "condition", "grade"]
-
-    # for title in allTitle:
-
-
     df = df[df["price"] < 1300000]
     df = df[df["bedrooms"] < 8]
     df = df[df["bathrooms"] < 5]
