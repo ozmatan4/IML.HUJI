@@ -1,6 +1,9 @@
 from __future__ import annotations
+from tkinter.tix import Tree
 from typing import Callable
 from typing import NoReturn
+
+from matplotlib.pyplot import flag
 from ...base import BaseEstimator
 import numpy as np
 
@@ -73,7 +76,16 @@ class Perceptron(BaseEstimator):
         -----
         Fits model with or without an intercept depending on value of `self.fit_intercept_`
         """
-        raise NotImplementedError()
+        self.coefs_ = np.zeros(X[0].shape)
+        for i in range(self.max_iter_):
+            flag = False
+            for j in range(y.size):
+                if (y[j]*np.inner(self.coefs_, X[j]))<=0:
+                    flag = True
+                    break
+            if flag:
+                self.coefs_ = self.coefs_ + 
+
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
