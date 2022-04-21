@@ -76,15 +76,27 @@ class Perceptron(BaseEstimator):
         -----
         Fits model with or without an intercept depending on value of `self.fit_intercept_`
         """
-        self.coefs_ = np.zeros(X[0].shape)
+        self.fitted_ = True
+
+        if self.include_intercept_:
+            ones_vec = np.ones((X.shape[0], 1))
+            X = np.concatenate([ones_vec, X], axis=1)
+
+        self.coefs_ = np.zeros(X.shape[1])
+
+        # for i in range(20):
         for i in range(self.max_iter_):
-            flag = False
+            flag = True
             for j in range(y.size):
                 if (y[j]*np.inner(self.coefs_, X[j]))<=0:
-                    flag = True
+                    self.coefs_ = self.coefs_ + y[j]*X[j]
+                    # self.callback_(self, X[j], y[j])
+                    self.callback_(self, X, y)
+                    flag = False
                     break
             if flag:
-                self.coefs_ = self.coefs_ + 
+                return
+
 
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
@@ -101,7 +113,12 @@ class Perceptron(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        if not self.fitted_:
+            return
+        # if self.include_intercept_:
+        #     ones_vec = np.ones((X.shape[0], 1))
+        #     X = np.concatenate([ones_vec, X], axis=1)
+        return np.sign(X @ self.coefs_)
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -121,4 +138,10 @@ class Perceptron(BaseEstimator):
             Performance under missclassification loss function
         """
         from ...metrics import misclassification_error
-        raise NotImplementedError()
+        if not self.fitted_:
+            return
+        # if self.include_intercept_:
+        #     ones_vec = np.ones((X.shape[0], 1))
+        #     X = np.concatenate([ones_vec, X], axis=1)
+        
+        return misclassification_error(y, self.predict(X))
