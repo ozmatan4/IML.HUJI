@@ -3,9 +3,9 @@ from ...base import BaseEstimator
 import numpy as np
 from numpy.linalg import det, inv
 
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis  
-model = LinearDiscriminantAnalysis()
-model.predict
+# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis  
+# model = LinearDiscriminantAnalysis()
+# model.predict
 class LDA(BaseEstimator):
     """
     Linear Discriminant Analysis (LDA) classifier
@@ -108,7 +108,7 @@ class LDA(BaseEstimator):
 
         # likelihoods = np.zeros(X.shape(0), np.size(self.classes_))
         z = np.sqrt(np.power(2*np.pi, X.shape(1))*np.linalg.det(self.cov_))
-        expArr = np.array([np.exp((0.5) * np.diag((x - self.mu_) @ self._cov_inv @ (x - self.mu_).T)) for x in X])
+        expArr = np.array([np.exp((-0.5) * np.diag((x - self.mu_) @ self._cov_inv @ (x - self.mu_).T)) for x in X])
         likelihoods = (1/z)*expArr
         return likelihoods
 

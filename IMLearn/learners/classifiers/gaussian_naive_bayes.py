@@ -39,7 +39,17 @@ class GaussianNaiveBayes(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+        self.classes_, return_counts = np.unique(y, return_counts=True)
+        self.pi_ = return_counts/y
+
+        self.mu_ = np.zeros(np.size(self.classes_), X.shape(1))
+        self.cov_ = np.zeros(X.shape(1), X.shape(1))
+
+        for i, cl in enumerate(self.classes_):
+            self.mu_[i] = X[y == cl].mean(axis=0)
+            self.vars_[i] = X[y == cl].var(axis=0)
+
+
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -55,7 +65,8 @@ class GaussianNaiveBayes(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        return np.argmax(self.likelihood(X), axis=1)
+        
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
@@ -75,7 +86,19 @@ class GaussianNaiveBayes(BaseEstimator):
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
 
-        raise NotImplementedError()
+        # z = np.sqrt(np.power(2*np.pi, X.shape(1))*np.linalg.det(self.cov_))
+        # expArr = np.array([np.exp((0.5) * np.diag((x - self.mu_) @ self._cov_inv @ (x - self.mu_).T)) for x in X])
+        # likelihoods = (1/z)*expArr
+        # return likelihoods
+
+
+        likelihoods = np.zeros((X.shape[0], self.classes_.size))
+        for i in range(self.classes_.size):
+            z = np.sqrt(np.power(2*np.pi, X.shape[1]) * np.linalg.det(self.vars_[i, :, :]))
+            likelihoods[:, i] = (1/z) * np.exp(-0.5 * np.diag((X - self.mu_[i]) @ np.linalg.inv(self.vars_[i, :, :]) @ (X - self.mu_[i]).T))
+        return likelihoods
+
+
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
