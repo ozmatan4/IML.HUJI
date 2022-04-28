@@ -50,6 +50,8 @@ def run_perceptron():
         percepObj = Perceptron(callback=callback_function) 
         percepObj._fit(X, y)
 
+        # print(np.shape(X))
+
         # Plot figure of loss as function of fitting iteration
         x_axis = np.arange(len(losses))
         y_axis = np.array(losses)

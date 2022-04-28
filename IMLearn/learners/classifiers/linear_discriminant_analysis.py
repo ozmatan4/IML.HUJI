@@ -46,7 +46,21 @@ class LDA(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+        self.classes_, return_counts = np.unique(y, return_counts=True)
+        self.pi_ = return_counts/y
+        self.mu_ = np.zeros(np.size(self.classes_), X.shape(1))
+        self.cov_ = np.zeros(X.shape(1), X.shape(1))
+
+        for i, cl in enumerate(self.classes_):
+            self.mu_[i] = X[y == cl].mean(axis=0)
+            self.cov_ += ((X[y == cl] - self.mu_[i]) @ (X[y == cl] - self.mu_[i]).T)/np.size(y)
+
+        
+        self._cov_inv = np.linalg.inv(self.cov_)
+
+
+
+
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -103,3 +117,5 @@ class LDA(BaseEstimator):
         """
         from ...metrics import misclassification_error
         raise NotImplementedError()
+
+
