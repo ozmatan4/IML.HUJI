@@ -42,12 +42,17 @@ def misclassification_error(y_true: np.ndarray, y_pred: np.ndarray, normalize: b
     -------
     Misclassification of given predictions
     """
-    someVec = y_pred + y_true
-    misVec = someVec[someVec==0]
+
+    misVec = y_pred[y_pred==y_true]
+
+    # someVec = y_pred + y_true
+    # misVec = someVec[someVec==0]
+
     return (np.size(misVec)/y_pred.size if normalize else np.size(misVec))
 
-
-
+# y_true = np.array([1,2,3,3,5])
+# y_pred = np.array([1,2,2,3,5])
+# print(misclassification_error(y_true, y_pred))
 
 
 def accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:

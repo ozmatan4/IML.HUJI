@@ -106,6 +106,13 @@ class LDA(BaseEstimator):
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
 
+        # likelihoods = np.zeros(X.shape(0), np.size(self.classes_))
+        z = np.sqrt(np.power(2*np.pi, X.shape(1))*np.linalg.det(self.cov_))
+        expArr = np.array([np.exp((0.5) * np.diag((x - self.mu_) @ self._cov_inv @ (x - self.mu_).T)) for x in X])
+        likelihoods = (1/z)*expArr
+        return likelihoods
+
+
 
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
@@ -126,6 +133,6 @@ class LDA(BaseEstimator):
             Performance under missclassification loss function
         """
         from ...metrics import misclassification_error
-        raise NotImplementedError()
+        return misclassification_error(y, self.predict(X), normalize=True)
 
 
