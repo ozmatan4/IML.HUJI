@@ -3,7 +3,9 @@ from ...base import BaseEstimator
 import numpy as np
 from numpy.linalg import det, inv
 
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis  
+model = LinearDiscriminantAnalysis()
+model.predict
 class LDA(BaseEstimator):
     """
     Linear Discriminant Analysis (LDA) classifier
@@ -72,11 +74,19 @@ class LDA(BaseEstimator):
             Input data to predict responses for
 
         Returns
-        -------
+        ------- 
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        
+        return np.array(np.argmax((X @ (self._cov_inv @ self.mu_.T)) + np.log(self.pi_) - (0.5) * np.diag(self.mu_ @ self._cov_inv @ self.mu_.T), axis=1))
+
+
+
+
+
+
+
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
@@ -96,7 +106,7 @@ class LDA(BaseEstimator):
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
 
-        raise NotImplementedError()
+
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
