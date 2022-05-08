@@ -93,30 +93,70 @@ def compare_gaussian_classifiers():
     """
     Fit both Gaussian Naive Bayes and LDA classifiers on both gaussians1 and gaussians2 datasets
     """
+    
     for f in ["gaussian1.npy", "gaussian2.npy"]:
         # Load dataset
-        raise NotImplementedError()
+        file = "/Users/ozmatan4/Documents/Studies/huji/year3/semesterB/IML/exercises/EX1/IML.HUJI/datasets/" + f
+        X, y = load_dataset(file)
 
         # Fit models and predict over training set
-        raise NotImplementedError()
+            # Linear Discriminant Analysis (LDA) classifier Object
+        ldaObj = LDA()
+        ldaObj.fit(X, y)
+
+            # Gaussian Naive-Bayes classifier Object
+        gnbObj = GaussianNaiveBayes()
+        gnbObj.fit(X, y)
 
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
-        # Create subplots
+        # Create subplotss
         from IMLearn.metrics import accuracy
-        raise NotImplementedError()
+        ldaPred = ldaObj.predict(X)
+        gnbPred = gnbObj.predict(X)
+
+        ldaTitle = "Accuracy LDA: " + str(accuracy(y, ldaPred))
+        gnbTitle = "Accuracy GNB: " + str(accuracy(y, gnbPred))
+        fig = make_subplots(rows=1, cols=2, subplot_titles=(gnbTitle, ldaTitle))
 
         # Add traces for data-points setting symbols and colors
-        raise NotImplementedError()
+        fig.add_trace(go.Scatter(x=X[:, 0], y=X[:, 1], mode="markers",
+                       marker=dict(color=ldaPred, symbol=y)),
+                        row=1, col=2)
+
+        fig.add_trace(go.Scatter(x=X[:, 0], y=X[:, 1], mode="markers",
+                       marker=dict(color=gnbPred, symbol=y)),
+                        row=1, col=1)
 
         # Add `X` dots specifying fitted Gaussians' means
-        raise NotImplementedError()
+        fig.add_trace(
+            go.Scatter(x=ldaObj.mu_[:,0], y=ldaObj.mu_[:, 1], mode="markers",
+                       marker=dict(color="black", symbol='x')), row=1, col=2)
+
+        fig.add_trace(
+            go.Scatter(x=gnbObj.mu_[:,0], y=gnbObj.mu_[:, 1], mode="markers",
+                       marker=dict(color="black", symbol='x')), row=1, col=1)
 
         # Add ellipses depicting the covariances of the fitted Gaussians
-        raise NotImplementedError()
+        for i in range(np.size(ldaObj.classes_)):
+            fig.add_trace(get_ellipse(ldaObj.mu_[i], ldaObj.cov_), row=1,col=2)
+
+            varMat = gnbObj.vars_[i] * np.identity(X.shape[1])
+            fig.add_trace(get_ellipse(gnbObj.mu_[i], varMat), row=1, col=1)
+
+        fig.update_layout(height=600, width=1200, title_text=f, showlegend=False).show()
+
 
 
 if __name__ == '__main__':
     np.random.seed(0)
-    run_perceptron()
-    compare_gaussian_classifiers()
+    # run_perceptron()
+    # compare_gaussian_classifiers()
+
+    X = np.array([[1,1], [1,2], [2,3], [2,4], [3,3], [3,4]])
+    y = np.array([0,0,1,1,1,1])
+
+    objMod = GaussianNaiveBayes()
+    objMod.fit(X,y)
+    print(objMod.vars_)
+    # print(objMod.mu_)

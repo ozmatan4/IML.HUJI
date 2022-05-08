@@ -49,13 +49,13 @@ class LDA(BaseEstimator):
             Responses of input data to fit to
         """
         self.classes_, return_counts = np.unique(y, return_counts=True)
-        self.pi_ = return_counts/y
-        self.mu_ = np.zeros(np.size(self.classes_), X.shape(1))
-        self.cov_ = np.zeros(X.shape(1), X.shape(1))
+        self.pi_ = return_counts/np.size(y)
+        self.mu_ = np.zeros((np.size(self.classes_), X.shape[1]))
+        self.cov_ = np.zeros((X.shape[1], X.shape[1]))
 
         for i, cl in enumerate(self.classes_):
             self.mu_[i] = X[y == cl].mean(axis=0)
-            self.cov_ += ((X[y == cl] - self.mu_[i]) @ (X[y == cl] - self.mu_[i]).T)/np.size(y)
+            self.cov_ += ((X[y == cl] - self.mu_[i]).T @ (X[y == cl] - self.mu_[i]))/np.size(y)
 
         
         self._cov_inv = np.linalg.inv(self.cov_)
@@ -105,9 +105,7 @@ class LDA(BaseEstimator):
         """
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
-
-        # likelihoods = np.zeros(X.shape(0), np.size(self.classes_))
-        z = np.sqrt(np.power(2*np.pi, X.shape(1))*np.linalg.det(self.cov_))
+        z = np.sqrt(np.power(2*np.pi, X.shape[1])*np.linalg.det(self.cov_))
         expArr = np.array([np.exp((-0.5) * np.diag((x - self.mu_) @ self._cov_inv @ (x - self.mu_).T)) for x in X])
         likelihoods = (1/z)*expArr
         return likelihoods
