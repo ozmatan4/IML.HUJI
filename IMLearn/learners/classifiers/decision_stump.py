@@ -41,7 +41,7 @@ class DecisionStump(BaseEstimator):
         """
         self.j_ = 0
         signArr = [-1, 1]
-        self.threshold_, minThresholdError = self._find_threshold(X[:, 0], y, -1)
+        minThresholdError = 1
         for sign in signArr:
             for i in range(X.shape[1]):
                 threshold, thresholdError = self._find_threshold(X[:, i], y, sign)
@@ -51,6 +51,8 @@ class DecisionStump(BaseEstimator):
                     self.threshold_ = threshold
                     self.j_ = i
         self.fitted_ = True
+
+
 
 
 
@@ -83,7 +85,6 @@ class DecisionStump(BaseEstimator):
         predictions *= self.sign_
         return predictions
 
-        
 
         
 
@@ -118,39 +119,19 @@ class DecisionStump(BaseEstimator):
         For every tested threshold, values strictly below threshold are predicted as `-sign` whereas values
         which equal to or above the threshold are predicted as `sign`
         """
-        np.sum(np.where(np.sign(y_pred) != np.sign(y_true), np.abs(y_true), np.zeros(y_true.shape[0])))
-
 
         thresholdError = 1
         threshold = values[0]
-        maxSplitSize = 0
         for curThreshold in values: 
-            tempArr = self.sign_*np.where(values >= curThreshold, 1, -1)
+            tempArr = sign*np.where(values >= curThreshold, 1, -1)
             labelsSign = np.sign(labels)
             errorArr = np.abs(labels[labelsSign != tempArr])
             errorSum = np.sum(errorArr) / np.sum(np.abs(labels))
-            if thresholdError > errorSum:
+            if thresholdError >= errorSum:
                 thresholdError = errorSum
                 threshold = curThreshold
 
         return threshold, thresholdError
-
-
-        # thresholdError = 1
-        # threshold = values[0]
-        # maxSplitSize = 0
-        # for curThreshold in values: 
-        #     temppArr = self.sign_*np.where(values >= curThreshold, 1, -1)
-
-        #     temppArr = temppArr[temppArr == np.sign(labels)]
-            
-        #     tempSize = np.size(temppArr)
-        #     if tempSize > maxSplitSize:
-        #         maxSplitSize = tempSize
-        #         threshold = curThreshold
-        #         thresholdError = 1-(tempSize/np.size(labels))
-
-        # return threshold, thresholdError
 
 
 

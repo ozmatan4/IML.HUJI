@@ -1,5 +1,5 @@
 import numpy as np
-from ...base import BaseEstimator
+from IMLearn.base import BaseEstimator
 from typing import Callable, NoReturn
 
 
@@ -48,16 +48,21 @@ class AdaBoost(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
+    
+
         self.D_ = np.ones(y.shape[0]) / y.shape[0]
-        self.models_ = np.empty(self.iterations_)
+        self.models_ = []
         self.weights_ = np.empty(self.iterations_)
         for t in range(self.iterations_):
-            self.models_[t] = self.wl_()
-            self.models_[t].fit(X, y*self.D_) # TODO check 
+            hModel = self.wl_()
+            hModel.fit(X, y*self.D_)
+            self.models_.append(hModel)
             predictions = self.models_[t].predict(X)
             epsilon = np.sum(np.where(predictions != y, 1, 0)*self.D_)
             self.weights_[t] = 0.5 * np.log((1 / epsilon )- 1)
-            self.D_ = (self.D_*np.exp((-1) * self.weights_[t] * y * predictions))/np.sum(self.D_)
+            self.D_ *= np.exp(-y * self.weights_[t] * predictions)
+            self.D_ = self.D_ / np.sum(self.D_)
+        self.models_ = np.array(self.models_)
 
 
     def _predict(self, X):
@@ -141,7 +146,9 @@ class AdaBoost(BaseEstimator):
         loss : float
             Performance under missclassification loss function
         """
-        from ...metrics import misclassification_error
+        from IMLearn.metrics import misclassification_error
         if not self.fitted_:
             return
         return misclassification_error(y, self.partial_predict(X, T))
+
+
