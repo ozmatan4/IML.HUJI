@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Tuple, Callable
 import numpy as np
 from IMLearn import BaseEstimator
+from random import shuffle
 
 
 def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
@@ -37,4 +38,17 @@ def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
     validation_score: float
         Average validation score over folds
     """
-    raise NotImplementedError()
+
+    ind_list = [i for i in range(y.size)]
+    shuffle(ind_list)
+    X = X[ind_list, :,:,:]
+    y = y[ind_list,]
+
+    trainScore, validationScore = 0, 0
+    for k in range(cv):
+        xTrainFold, yTrainFold = np.concatenate((X[: k*cv], X[k*cv + cv:]), axis=0), np.concatenate((y[: k*cv], y[k*cv + cv:]), axis=0)
+        xValidateFold, yValidateFold = X[k*cv : k*cv + cv], y[k*cv : k*cv + cv]
+        estimator.fit(xTrainFold, yTrainFold)
+        trainScore += scoring(yTrainFold, estimator.predict(xTrainFold))
+        validationScore += scoring(yValidateFold, estimator.predict(xValidateFold))
+    return trainScore/cv, validationScore/cv
